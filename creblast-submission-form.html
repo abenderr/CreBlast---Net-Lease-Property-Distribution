@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreBlast — Submit Your Property</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1923;
+    --paper: #f8f6f1;
+    --accent: #c4953a;
+    --accent-light: #e8d5a8;
+    --accent-dark: #9a7428;
+    --slate: #3d4f5f;
+    --muted: #8a9bab;
+    --success: #2d8a5e;
+    --white: #ffffff;
+    --divider: rgba(15,25,35,0.08);
+    --shadow-sm: 0 1px 3px rgba(15,25,35,0.06);
+    --shadow-md: 0 4px 20px rgba(15,25,35,0.08);
+    --shadow-lg: 0 12px 40px rgba(15,25,35,0.12);
+    --radius: 6px;
+    --danger: #c0392b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--ink);
+    padding: 0 40px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--paper); }
+  .nav-brand span { color: var(--accent); }
+  .nav-step-indicator { display: flex; gap: 24px; }
+  .nav-step {
+    font-size: 12px; font-weight: 500; color: rgba(248,246,241,0.35);
+    display: flex; align-items: center; gap: 8px;
+    transition: color 0.3s;
+  }
+  .nav-step.active { color: var(--accent); }
+  .nav-step.done { color: rgba(248,246,241,0.7); }
+  .nav-step-dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .nav-step.active .nav-step-dot { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+  .nav-step.done .nav-step-dot { background: rgba(248,246,241,0.7); color: var(--ink); }
+
+  /* LAYOUT */
+  .page { display: flex; min-height: calc(100vh - 56px); }
+  .form-panel {
+    flex: 1; padding: 40px; max-width: 580px;
+    overflow-y: auto; max-height: calc(100vh - 56px);
+  }
+  .preview-panel {
+    flex: 1;
+    background: var(--ink);
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 32px;
+    overflow-y: auto; max-height: calc(100vh - 56px);
+    position: relative;
+  }
+  .preview-panel::before {
+    content: 'LIVE PREVIEW';
+    position: absolute; top: 16px; right: 20px;
+    font-size: 10px; letter-spacing: 2px; font-weight: 600;
+    color: var(--accent); opacity: 0.6;
+  }
+
+  /* FORM */
+  .form-section { margin-bottom: 36px; }
+  .form-section-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px;
+    color: var(--accent); font-weight: 600; margin-bottom: 16px;
+  }
+  .form-section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; margin-bottom: 6px;
+  }
+  .form-section-desc {
+    font-size: 14px; color: var(--slate); font-weight: 300; margin-bottom: 20px;
+  }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;
+  }
+  .field label .optional { font-weight: 300; color: var(--muted); }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--divider);
+    border-radius: var(--radius);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px; color: var(--ink);
+    background: var(--white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* LOGO UPLOAD */
+  .logo-upload-zone {
+    border: 2px dashed var(--divider);
+    border-radius: 10px;
+    padding: 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    background: var(--white);
+  }
+  .logo-upload-zone:hover { border-color: var(--accent); background: rgba(196,149,58,0.03); }
+  .logo-upload-zone.dragover { border-color: var(--accent); background: rgba(196,149,58,0.06); }
+  .logo-upload-zone input { display: none; }
+  .logo-upload-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.5; }
+  .logo-upload-text { font-size: 14px; color: var(--slate); }
+  .logo-upload-text strong { color: var(--accent); }
+  .logo-upload-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* LOGO RESULT */
+  .logo-result {
+    display: none;
+    margin-top: 16px;
+  }
+  .logo-result.show { display: block; }
+  .logo-comparison {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px;
+    align-items: center;
+  }
+  .logo-box {
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .logo-box.original { background: var(--white); border: 1px solid var(--divider); }
+  .logo-box.cleaned {
+    background: repeating-conic-gradient(#e8e6e1 0% 25%, #f3f1ec 0% 50%) 50% / 16px 16px;
+    border: 2px solid var(--success);
+    position: relative;
+  }
+  .logo-box-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    font-weight: 600; margin-bottom: 10px;
+  }
+  .logo-box.original .logo-box-label { color: var(--muted); }
+  .logo-box.cleaned .logo-box-label { color: var(--success); }
+  .logo-box img {
+    max-width: 100%; max-height: 80px;
+    object-fit: contain;
+  }
+  .logo-arrow { color: var(--accent); font-size: 20px; font-weight: 700; }
+  .logo-processing {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .logo-processing.show { display: block; }
+  .logo-processing .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--divider);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .logo-processing p { font-size: 13px; color: var(--slate); }
+  .logo-reupload {
+    display: inline-block; margin-top: 12px;
+    font-size: 13px; color: var(--accent); cursor: pointer;
+    font-weight: 500; text-decoration: underline;
+  }
+
+  /* PHOTO UPLOAD */
+  .photo-upload-zone {
+    border: 2px dashed var(--divider);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: var(--white);
+    position: relative;
+  }
+  .photo-upload-zone:hover { border-color: var(--accent); }
+  .photo-upload-zone input { display: none; }
+  .photo-preview { display: none; }
+  .photo-preview.show { display: block; margin-top: 12px; }
+  .photo-preview img {
+    max-width: 100%; max-height: 160px;
+    border-radius: var(--radius); object-fit: cover;
+  }
+
+  /* BUTTONS */
+  .form-actions {
+    display: flex; gap: 12px; padding-top: 16px;
+    border-top: 1px solid var(--divider);
+  }
+  .btn {
+    padding: 12px 28px; border: none; border-radius: var(--radius);
+    font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .btn-primary { background: var(--accent); color: var(--white); }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-outline {
+    background: transparent; color: var(--ink);
+    border: 1.5px solid var(--divider);
+  }
+  .btn-outline:hover { border-color: var(--ink); }
+
+  /* EMAIL PREVIEW */
+  .email-preview-wrap {
+    width: 420px;
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .ep-header {
+    background: var(--ink);
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ep-logo { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--paper); }
+  .ep-logo span { color: var(--accent); }
+  .ep-tag { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 600; }
+  .ep-photo {
+    width: 100%; height: 180px;
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px;
+    text-transform: uppercase; overflow: hidden;
+  }
+  .ep-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .ep-body { padding: 20px 24px; }
+  .ep-badge {
+    display: inline-block;
+    background: var(--accent-light); color: var(--accent-dark);
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.5px; padding: 3px 8px; border-radius: 3px;
+    margin-bottom: 8px;
+  }
+  .ep-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px; margin-bottom: 3px; line-height: 1.3;
+  }
+  .ep-subtitle { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+  .ep-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .ep-stat {
+    text-align: center; padding: 10px 6px;
+    background: var(--paper); border-radius: var(--radius);
+  }
+  .ep-stat-val { font-size: 16px; font-weight: 700; line-height: 1; margin-bottom: 2px; }
+  .ep-stat-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .ep-details { border-top: 1px solid var(--divider); padding-top: 12px; margin-bottom: 16px; }
+  .ep-detail-row {
+    display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px;
+  }
+  .ep-detail-row .lbl { color: var(--muted); }
+  .ep-detail-row .val { font-weight: 600; }
+  .ep-highlights {
+    background: var(--paper); border-radius: var(--radius);
+    padding: 12px; margin-bottom: 16px;
+    font-size: 12px; color: var(--slate); line-height: 1.6;
+  }
+  .ep-highlights strong { color: var(--ink); display: block; margin-bottom: 2px; font-size: 11px; }
+  .ep-cta {
+    display: block; width: 100%; background: var(--accent); color: var(--white);
+    text-align: center; padding: 10px; border-radius: var(--radius);
+    font-weight: 600; font-size: 13px; text-decoration: none; margin-bottom: 12px;
+  }
+  .ep-broker {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; background: var(--paper); border-radius: var(--radius);
+  }
+  .ep-broker-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+    overflow: hidden;
+  }
+  .ep-broker-avatar img { width: 100%; height: 100%; object-fit: contain; }
+  .ep-broker-name { font-size: 12px; font-weight: 600; }
+  .ep-broker-co { font-size: 10px; color: var(--muted); }
+  .ep-footer {
+    background: var(--ink); padding: 14px 24px; text-align: center;
+    font-size: 9px; color: rgba(248,246,241,0.35); line-height: 2;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .page { flex-direction: column; }
+    .form-panel { max-width: 100%; }
+    .preview-panel { min-height: 600px; padding: 32px 16px; }
+    .email-preview-wrap { width: 100%; max-width: 420px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Cre<span>Blast</span></div>
+  <div class="nav-step-indicator">
+    <div class="nav-step active" id="step-ind-1"><div class="nav-step-dot">1</div>Your Info</div>
+    <div class="nav-step" id="step-ind-2"><div class="nav-step-dot">2</div>Property</div>
+    <div class="nav-step" id="step-ind-3"><div class="nav-step-dot">3</div>Review</div>
+  </div>
+</nav>
+
+<div class="page">
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+
+    <!-- STEP 1: CONTACT + LOGO -->
+    <div id="step-1" class="form-step">
+      <div class="form-section">
+        <div class="form-section-label">Step 1 of 3</div>
+        <div class="form-section-title">Your Information</div>
+        <div class="form-section-desc">This info will appear in the email so buyers can contact you directly.</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>First Name</label>
+            <input type="text" id="firstName" placeholder="John" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Last Name</label>
+            <input type="text" id="lastName" placeholder="Doe" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="title" placeholder="Senior Advisor" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Company / Brokerage</label>
+          <input type="text" id="company" placeholder="National Net Lease Group" oninput="updatePreview()">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="john@example.com">
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="tel" id="phone" placeholder="(555) 123-4567" oninput="updatePreview()">
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGO UPLOAD -->
+      <div class="form-section">
+        <div class="form-section-label">Your Logo</div>
+        <div class="form-section-desc">Upload your brokerage or company logo. We'll automatically remove the background and clean it up for the email.</div>
+
+        <div class="logo-upload-zone" id="logoDropZone" onclick="document.getElementById('logoInput').click()">
+          <input type="file" id="logoInput" accept="image/*" onchange="handleLogoUpload(event)">
+          <div class="logo-upload-icon">🖼</div>
+          <div class="logo-upload-text">Drop your logo here or <strong>browse</strong></div>
+          <div class="logo-upload-hint">PNG, JPG, SVG — any background is fine, we'll clean it up</div>
+        </div>
+
+        <div class="logo-processing" id="logoProcessing">
+          <div class="spinner"></div>
+          <p>Removing background & optimizing...</p>
+        </div>
+
+        <div class="logo-result" id="logoResult">
+          <div class="logo-comparison">
+            <div class="logo-box original">
+              <div class="logo-box-label">Original</div>
+              <img id="logoOriginal" src="" alt="Original logo">
+            </div>
+            <div class="logo-arrow">→</div>
+            <div class="logo-box cleaned">
+              <div class="logo-box-label">Cleaned ✓</div>
+              <img id="logoCleaned" src="" alt="Cleaned logo">
+            </div>
+          </div>
+          <div style="text-align:center">
+            <span class="logo-reupload" onclick="document.getElementById('logoInput').click()">Upload a different logo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="goToStep(2)">Continue to Property Details →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: PROPERTY -->
+    <div id="step-2" class="form-step" style="display:none;">
+      <div class="form-section">
+        <div class="form-section-label">Step 2 of 3</div>
+        <div class="form-section-title">Property Details</div>
+        <div class="form-section-desc">Fill in the deal details. All fields populate the email template live — check the preview on the right.</div>
+
+        <div class="field">
+          <label>Tenant Name</label>
+          <input type="text" id="tenant" placeholder="Dollar General" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Property Address</label>
+          <input type="text" id="address" placeholder="1234 Main St, Springfield, MO 65801" oninput="updatePreview()">
+        </div>
+        <div class="field-row-3">
+          <div class="field">
+            <label>Price</label>
+            <input type="text" id="price" placeholder="$1,620,000" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Cap Rate</label>
+            <input type="text" id="capRate" placeholder="5.75%" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Lease Term Remaining</label>
+            <input type="text" id="leaseTerm" placeholder="15 Years" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Lease Type</label>
+            <select id="leaseType" onchange="updatePreview()">
+              <option>Absolute NNN</option>
+              <option>NNN</option>
+              <option>NN</option>
+              <option>Modified Gross</option>
+              <option>Ground Lease</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Annual Rent / NOI</label>
+            <input type="text" id="annualRent" placeholder="$93,150" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Rent Increases</label>
+            <input type="text" id="rentIncreases" placeholder="10% Every 5 Years" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Guarantor</label>
+            <input type="text" id="guarantor" placeholder="Corporate" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Building Size <span class="optional">(optional)</span></label>
+            <input type="text" id="buildingSize" placeholder="±9,100 SF" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Year Built <span class="optional">(optional)</span></label>
+            <input type="text" id="yearBuilt" placeholder="2022" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Investment Highlights <span class="optional">(optional)</span></label>
+          <textarea id="highlights" placeholder="Brief description of why this is a compelling investment..." oninput="updatePreview()"></textarea>
+        </div>
+
+        <!-- PROPERTY PHOTO -->
+        <div class="form-section" style="margin-top:24px;">
+          <div class="form-section-label">Property Photo</div>
+          <div class="photo-upload-zone" onclick="document.getElementById('photoInput').click()">
+            <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+            <div style="font-size:13px; color:var(--slate);">📷 Upload a property photo <span style="color:var(--accent); font-weight:500;">browse</span></div>
+          </div>
+          <div class="photo-preview" id="photoPreview">
+            <img id="photoImg" src="" alt="Property photo">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="goToStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(3)">Review & Submit →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: REVIEW -->
+    <div id="step-3" class="form-step" style="display:none;">
+      <div class="form-section">
+        <div class="form-section-label">Step 3 of 3</div>
+        <div class="form-section-title">Review & Submit</div>
+        <div class="form-section-desc">Take a final look at the email preview on the right. Once submitted, we'll review and schedule your blast.</div>
+
+        <div style="background:var(--white); border-radius:10px; padding:24px; border:1px solid var(--divider); margin-bottom:20px;">
+          <div style="font-size:13px; font-weight:600; margin-bottom:12px;">What happens next:</div>
+          <div style="font-size:14px; color:var(--slate); line-height:2; font-weight:300;">
+            ✓ We review your submission for accuracy<br>
+            ✓ Your email blast is queued and sent within 24–48 hours<br>
+            ✓ You'll receive a confirmation when the blast goes live<br>
+            ✓ All buyer replies go directly to your email
+          </div>
+        </div>
+
+        <div style="background:rgba(196,149,58,0.08); border:1.5px solid var(--accent-light); border-radius:10px; padding:20px; text-align:center;">
+          <div style="font-size:13px; color:var(--slate); margin-bottom:4px;">Total Due</div>
+          <div style="font-family:'DM Serif Display',serif; font-size:42px;">$100</div>
+          <div style="font-size:12px; color:var(--muted);">One-time fee per property blast</div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="goToStep(2)">← Edit Details</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="handleSubmit()">Pay $100 & Submit Property</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LIVE PREVIEW PANEL -->
+  <div class="preview-panel">
+    <div class="email-preview-wrap">
+      <div class="ep-header">
+        <div class="ep-logo">Cre<span>Blast</span></div>
+        <div class="ep-tag">Net Lease Opportunity</div>
+      </div>
+      <div class="ep-photo" id="previewPhoto">
+        <span>▲ PROPERTY PHOTO</span>
+      </div>
+      <div class="ep-body">
+        <div class="ep-badge">New Listing</div>
+        <div class="ep-title" id="previewTitle">Tenant — City, ST</div>
+        <div class="ep-subtitle" id="previewSubtitle">Lease details appear here</div>
+        <div class="ep-stats">
+          <div class="ep-stat"><div class="ep-stat-val" id="previewPrice">—</div><div class="ep-stat-lbl">Price</div></div>
+          <div class="ep-stat"><div class="ep-stat-val" id="previewCap">—</div><div class="ep-stat-lbl">Cap Rate</div></div>
+          <div class="ep-stat"><div class="ep-stat-val" id="previewTerm">—</div><div class="ep-stat-lbl">Lease Term</div></div>
+        </div>
+        <div class="ep-details" id="previewDetails">
+          <div class="ep-detail-row"><span class="lbl">Tenant</span><span class="val" id="prevTenant">—</span></div>
+          <div class="ep-detail-row"><span class="lbl">Guarantor</span><span class="val" id="prevGuarantor">—</span></div>
+          <div class="ep-detail-row"><span class="lbl">Lease Type</span><span class="val" id="prevLeaseType">—</span></div>
+          <div class="ep-detail-row"><span class="lbl">Annual Rent</span><span class="val" id="prevRent">—</span></div>
+          <div class="ep-detail-row"><span class="lbl">Increases</span><span class="val" id="prevIncreases">—</span></div>
+          <div class="ep-detail-row" id="prevBuildingRow" style="display:none;"><span class="lbl">Building</span><span class="val" id="prevBuilding">—</span></div>
+          <div class="ep-detail-row" id="prevYearRow" style="display:none;"><span class="lbl">Year Built</span><span class="val" id="prevYear">—</span></div>
+        </div>
+        <div class="ep-highlights" id="previewHighlights" style="display:none;">
+          <strong>Investment Highlights</strong>
+          <span id="prevHighlightsText"></span>
+        </div>
+        <a href="#" class="ep-cta">Request Full Offering Memorandum</a>
+        <div class="ep-broker">
+          <div class="ep-broker-avatar" id="previewAvatar">
+            <span id="previewInitials">?</span>
+          </div>
+          <div>
+            <div class="ep-broker-name" id="previewBrokerName">Your Name · Title</div>
+            <div class="ep-broker-co" id="previewBrokerCo">Company · Phone</div>
+          </div>
+        </div>
+      </div>
+      <div class="ep-footer">
+        Distributed by CreBlast · Net Lease Investment Opportunities<br>
+        Unsubscribe · Preferences
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── STEP NAVIGATION ──
+  function goToStep(n) {
+    document.querySelectorAll('.form-step').forEach(s => s.style.display = 'none');
+    document.getElementById('step-' + n).style.display = 'block';
+    for (let i = 1; i <= 3; i++) {
+      const ind = document.getElementById('step-ind-' + i);
+      ind.className = 'nav-step' + (i === n ? ' active' : i < n ? ' done' : '');
+    }
+    document.querySelector('.form-panel').scrollTop = 0;
+  }
+
+  // ── LOGO UPLOAD + BACKGROUND REMOVAL ──
+  let cleanedLogoDataUrl = null;
+
+  function handleLogoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const originalSrc = ev.target.result;
+      document.getElementById('logoOriginal').src = originalSrc;
+
+      // Show processing
+      document.getElementById('logoResult').classList.remove('show');
+      document.getElementById('logoProcessing').classList.add('show');
+      document.querySelector('.logo-upload-zone').style.display = 'none';
+
+      // Process: remove background using canvas
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        // Sample corners to detect background color
+        const corners = [
+          getPixel(data, 0, 0, canvas.width),
+          getPixel(data, canvas.width - 1, 0, canvas.width),
+          getPixel(data, 0, canvas.height - 1, canvas.width),
+          getPixel(data, canvas.width - 1, canvas.height - 1, canvas.width)
+        ];
+
+        // Average corner colors as background reference
+        const bgColor = {
+          r: Math.round(corners.reduce((s, c) => s + c.r, 0) / 4),
+          g: Math.round(corners.reduce((s, c) => s + c.g, 0) / 4),
+          b: Math.round(corners.reduce((s, c) => s + c.b, 0) / 4)
+        };
+
+        // Threshold-based background removal
+        const tolerance = 55;
+        for (let i = 0; i < data.length; i += 4) {
+          const dr = Math.abs(data[i] - bgColor.r);
+          const dg = Math.abs(data[i + 1] - bgColor.g);
+          const db = Math.abs(data[i + 2] - bgColor.b);
+          const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+
+          if (dist < tolerance) {
+            // Soft edge: fade alpha near threshold
+            const alpha = Math.max(0, Math.min(255, (dist - tolerance * 0.5) / (tolerance * 0.5) * 255));
+            data[i + 3] = Math.round(alpha);
+          }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+
+        // Trim transparent edges
+        const trimmed = trimCanvas(canvas);
+
+        cleanedLogoDataUrl = trimmed.toDataURL('image/png');
+        document.getElementById('logoCleaned').src = cleanedLogoDataUrl;
+
+        // Update preview
+        const avatarEl = document.getElementById('previewAvatar');
+        avatarEl.innerHTML = `<img src="${cleanedLogoDataUrl}" alt="Logo" style="width:100%;height:100%;object-fit:contain;padding:2px;">`;
+
+        // Show result after fake delay for UX
+        setTimeout(() => {
+          document.getElementById('logoProcessing').classList.remove('show');
+          document.getElementById('logoResult').classList.add('show');
+        }, 1200);
+      };
+      img.src = originalSrc;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function getPixel(data, x, y, w) {
+    const i = (y * w + x) * 4;
+    return { r: data[i], g: data[i+1], b: data[i+2], a: data[i+3] };
+  }
+
+  function trimCanvas(canvas) {
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imageData.data;
+    let top = canvas.height, left = canvas.width, right = 0, bottom = 0;
+
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        const a = d[(y * canvas.width + x) * 4 + 3];
+        if (a > 10) {
+          if (y < top) top = y;
+          if (y > bottom) bottom = y;
+          if (x < left) left = x;
+          if (x > right) right = x;
+        }
+      }
+    }
+
+    const pad = 8;
+    top = Math.max(0, top - pad);
+    left = Math.max(0, left - pad);
+    right = Math.min(canvas.width - 1, right + pad);
+    bottom = Math.min(canvas.height - 1, bottom + pad);
+
+    const w = right - left + 1;
+    const h = bottom - top + 1;
+    const trimmed = document.createElement('canvas');
+    trimmed.width = w;
+    trimmed.height = h;
+    trimmed.getContext('2d').putImageData(ctx.getImageData(left, top, w, h), 0, 0);
+    return trimmed;
+  }
+
+  // ── DRAG & DROP ──
+  const dropZone = document.getElementById('logoDropZone');
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+      document.getElementById('logoInput').files = e.dataTransfer.files;
+      handleLogoUpload({ target: { files: e.dataTransfer.files } });
+    }
+  });
+
+  // ── PHOTO UPLOAD ──
+  function handlePhotoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      document.getElementById('photoImg').src = ev.target.result;
+      document.getElementById('photoPreview').classList.add('show');
+      document.getElementById('previewPhoto').innerHTML = `<img src="${ev.target.result}" alt="Property">`;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── LIVE PREVIEW ──
+  function updatePreview() {
+    const v = id => document.getElementById(id)?.value || '';
+
+    // Broker
+    const fn = v('firstName'), ln = v('lastName');
+    const initials = (fn.charAt(0) + ln.charAt(0)).toUpperCase() || '?';
+    if (!cleanedLogoDataUrl) {
+      document.getElementById('previewInitials').textContent = initials;
+    }
+    const titleVal = v('title') ? ' · ' + v('title') : '';
+    document.getElementById('previewBrokerName').textContent = (fn || ln ? `${fn} ${ln}`.trim() + titleVal : 'Your Name · Title');
+    const coLine = [v('company'), v('phone')].filter(Boolean).join(' · ');
+    document.getElementById('previewBrokerCo').textContent = coLine || 'Company · Phone';
+
+    // Property
+    const tenant = v('tenant');
+    const addr = v('address');
+    const city = addr ? addr.split(',').slice(1).join(',').trim() : '';
+    document.getElementById('previewTitle').textContent = (tenant && city) ? `${tenant} — ${city}` : (tenant || 'Tenant — City, ST');
+    
+    const term = v('leaseTerm');
+    const lt = v('leaseType');
+    const subParts = [term ? term + ' ' + lt + ' Lease' : '', v('yearBuilt') ? v('yearBuilt') + ' Construction' : ''].filter(Boolean);
+    document.getElementById('previewSubtitle').textContent = subParts.join(' · ') || 'Lease details appear here';
+
+    document.getElementById('previewPrice').textContent = v('price') || '—';
+    document.getElementById('previewCap').textContent = v('capRate') || '—';
+    document.getElementById('previewTerm').textContent = v('leaseTerm') || '—';
+
+    document.getElementById('prevTenant').textContent = tenant || '—';
+    document.getElementById('prevGuarantor').textContent = v('guarantor') || '—';
+    document.getElementById('prevLeaseType').textContent = lt || '—';
+    document.getElementById('prevRent').textContent = v('annualRent') || '—';
+    document.getElementById('prevIncreases').textContent = v('rentIncreases') || '—';
+
+    const bs = v('buildingSize');
+    document.getElementById('prevBuildingRow').style.display = bs ? 'flex' : 'none';
+    document.getElementById('prevBuilding').textContent = bs;
+
+    const yb = v('yearBuilt');
+    document.getElementById('prevYearRow').style.display = yb ? 'flex' : 'none';
+    document.getElementById('prevYear').textContent = yb;
+
+    const hl = v('highlights');
+    document.getElementById('previewHighlights').style.display = hl ? 'block' : 'none';
+    document.getElementById('prevHighlightsText').textContent = hl;
+  }
+
+  function handleSubmit() {
+    alert('In production, this would redirect to Stripe Checkout for $100 payment, then submit the property to your admin queue for review.');
+  }
+</script>
+
+</body>
+</html>
